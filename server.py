@@ -432,7 +432,7 @@ try:
       serverAddr = sys.argv[2]
       name = sys.argv[1]
   else:
-      serverAddr = "188.227.84.94""
+      serverAddr = "188.227.84.94"
   if len(sys.argv) == 4:
       port = int(sys.argv[3])
       serverAddr = sys.argv[2]
