@@ -268,7 +268,11 @@ class MainServer(asyncore.dispatcher):
     nick = 'ID'+str(playerid)
     MainServer.logs('INFO','[id'+str(playerid)+'] пользователь подключился')
     sendmess(['chat','Server',"пользователь присоединлся к нам [ID"+str(playerid)+"]"])
-    conn.send((json.dumps(['setinfo',['id', playerid],['nick', nick],['auth', False]]).encode()))
+    try:
+        conn.send((json.dumps(['setinfo',['id', playerid],['nick', nick],['auth', False]]).encode()))
+    except Exception as e:
+        MainServer.logs('ERROR','Потеряна связь с пользователем... '+str(e)+' ('+str(recievedData)+')')
+        conn.close()
     SecondaryServer(conn)
     
   def exit(self):
