@@ -8,7 +8,7 @@ import json
 import logging
 from threading import Thread
 
-BUFFERSIZE = 1024
+BUFFERSIZE = 2048
 
 def user(arr):
     if os.path.exists(name+'/data_file.json') == False:
@@ -258,7 +258,7 @@ class MainServer(asyncore.dispatcher):
     self.socket.bind((serverAddr, port))
     self.listen(10)
     MainServer.logs('INFO','Cервер успешно запущен')
-    #sendmess(['chat','Server','ping'])  
+    sendmess(['chat','Server','ping'])  
     
   def handle_accept(self):
     global conn, name
@@ -280,7 +280,7 @@ class SecondaryServer(asyncore.dispatcher_with_send):
     try:
       recievedData = json.loads((recievedData).decode())
     except Exception as e:
-      MainServer.logs('ERROR','Потеряна связь с пользователем... '+str(e)+' ('+str(recievedData)+')')
+      MainServer.logs('ERROR in CONNECT','Потеряна связь с пользователем... '+str(e)+' ('+str(recievedData)+')')
       recievedData = ['disconnect','']
       
     if recievedData[0] == 'login':
