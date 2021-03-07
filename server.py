@@ -8,7 +8,7 @@ import json
 import logging
 from threading import Thread
 
-BUFFERSIZE = 2048
+BUFFERSIZE = 1024
 
 def user(arr):
     if os.path.exists(name+'/data_file.json') == False:
@@ -58,7 +58,6 @@ def user(arr):
                     'nick':nick,
                     'password':arr[2][1],
                     'admin':admin,
-                    'promokod':'',
                     'date':date
                 }
                         
@@ -89,10 +88,9 @@ def user(arr):
                     'nick':(getinfo[key])['nick'],
                     'password':arr[2],
                     'admin':(getinfo[key])['admin'],
-                    'promokod':(getinfo[key])['promokod'],
                     'date':(getinfo[key])['date']
                     }
-                with open(name+"/data_file.json", "w") as write_file:
+                with open(name+"data_file.json", "w") as write_file:
                     json.dump(data, write_file)
                 return " пароль изменён!"
         
@@ -110,7 +108,6 @@ def user(arr):
                     'nick':users_get[arr[1]]['nick'],
                     'password':users_get[arr[1]]['password'],
                     'admin':True,
-                    'promokod':users_get[arr[1]]['promokod'],
                     'date':users_get[arr[1]]['date']
                     }
                 with open(name+"/data_file.json", "w") as write_file:
@@ -124,15 +121,14 @@ def user(arr):
       if users_get.get(arr[1]):
           with open(name+"/data_file.json", "r") as read_file:
               data = json.load(read_file)
-          if data[arr[1]]['admin'] == False:
+          if data[arr[1]]['admin'] == True:
               return " пытался убрать права администратора у обычного простолюдина "
           else:
               data[arr[1]] ={
                   'id':users_get[arr[1]]['id'],
                   'nick':users_get[arr[1]]['nick'],
                   'password':users_get[arr[1]]['password'],
-                  'admin':False,
-                  'promokod':users_get[arr[1]]['promokod'],
+                  'admin':True,
                   'date':users_get[arr[1]]['date']
                   }
               with open(name+"/data_file.json", "w") as write_file:
@@ -141,42 +137,10 @@ def user(arr):
       else:
           return ' пытался отобрать права администратора '  
           
-    if arr[0] == 'promokod':
-        if arr[1] == 'admin':
-            users_promo = user(['get_info'])
-            for key in users_promo:
-                if (users_promo[key])['id'] == arr[2]:
-                    nick = (users_promo[key])['nick']
-                    break    
-            user(['setadmin',nick])
-            return " кому-то выпала ОПКА ЕБАТь"
-        else:
-            users_promo = user(['get_info'])
-            with open(name+"/data_file.json", "r") as read_file:
-                data = json.load(read_file)
-            for key in data:
-                if (data[key])['id'] == arr[2]:
-                    nick = (data[key])['nick']
-                    break    
-            if data[nick]['promokod'] != "":
-                return " попытки исчерпаны... [;c] "
-            else:
-                data[nick] ={
-                    'id':data[nick]['id'],
-                    'nick':data[nick]['nick'],
-                    'password':data[nick]['password'],
-                    'admin':data[nick]['admin'],
-                    'promokod':arr[1],
-                    'date':data[nick]['date']
-                    }
-                with open(name+"/data_file.json", "w") as write_file:
-                    json.dump(data, write_file)
-                return " кому-то выпало "+str(arr[1])
-            
+      
     if arr[0] == 'remove':
         if users.get(arr[1]):
             users.pop(arr[1])
-            sendmess(['chat','Server',"пользователь покинул нас [ID"+str(arr[1])+"]"])
       
     if arr[0] == 'list':
       online = 'Онлайн: '
@@ -257,17 +221,16 @@ class MainServer(asyncore.dispatcher):
     
     self.socket.bind((serverAddr, port))
     self.listen(10)
-    MainServer.logs('INFO','Cервер успешно запущен')
-    sendmess(['chat','Server','ping'])  
+    MainServer.logs('INFO',''+str(serverAddr) + ":" + str(port)+' сервер '+'запущен')
+    #sendmess(['chat','Server','ping'])  
     
   def handle_accept(self):
-    global conn, name
+    global conn
     playerid = random.randint(1, 100)
     conn, addr = self.accept()
     outgoing.append(conn)
     nick = 'ID'+str(playerid)
     MainServer.logs('INFO','[id'+str(playerid)+'] пользователь подключился')
-    sendmess(['chat','Server',"пользователь присоединлся к нам [ID"+str(playerid)+"]"])
     try:
         conn.send((json.dumps(['setinfo',['id', playerid],['nick', nick],['auth', False]]).encode()))
     except Exception as e:
@@ -285,7 +248,7 @@ class SecondaryServer(asyncore.dispatcher_with_send):
       recievedData = json.loads((recievedData).decode())
     except Exception as e:
       MainServer.logs('ERROR in CONNECT','Потеряна связь с пользователем... '+str(e)+' ('+str(recievedData)+')')
-      recievedData = ['disconnect',""]
+      recievedData = ['disconnect','']
       
     if recievedData[0] == 'login':
         user(recievedData)
