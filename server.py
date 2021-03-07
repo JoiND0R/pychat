@@ -285,7 +285,7 @@ class SecondaryServer(asyncore.dispatcher_with_send):
       recievedData = json.loads((recievedData).decode())
     except Exception as e:
       MainServer.logs('ERROR in CONNECT','Потеряна связь с пользователем... '+str(e)+' ('+str(recievedData)+')')
-      recievedData = ['disconnect','']
+      recievedData = ['disconnect',""]
       
     if recievedData[0] == 'login':
         user(recievedData)
