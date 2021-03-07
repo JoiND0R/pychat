@@ -208,7 +208,7 @@ def sendmess(arr, clear = False):
       try:
           i.send((json.dumps(['pong',userid]).encode()))
       except Exception as e:
-          MainServer.logs('ERROR',e)
+          MainServer.logs('ERROR [pong]',e)
           remove.append(i)
           continue
   for r in remove:
@@ -239,7 +239,7 @@ def sendmess(arr, clear = False):
       try:
           i.send((json.dumps(['chat',chat_main]).encode()))
       except Exception as e:
-          MainServer.logs('ERROR',e)
+          MainServer.logs('ERROR [chat]',e)
           remove.append(i)
           continue
   for r in remove:
@@ -315,7 +315,7 @@ class SecondaryServer(asyncore.dispatcher_with_send):
                       text = ' '.join(cmd[1:]) 
                       i.send(json.dumps(['say',text]).encode())
                   except Exception as e:
-                      MainServer.logs('ERROR',e)
+                      MainServer.logs('ERROR [say]',e)
                       remove.append(i)
                       continue
 
@@ -337,7 +337,7 @@ class SecondaryServer(asyncore.dispatcher_with_send):
                       i.close()
                       remove.append(i)
                   except Exception as e:
-                      MainServer.logs('ERROR',e)
+                      MainServer.logs('ERROR [erase]',e)
                       remove.append(i)
                       continue
               for r in remove:
@@ -499,7 +499,7 @@ class SecondaryServer(asyncore.dispatcher_with_send):
                       text = ' '.join(cmd[1:]) 
                       i.send(json.dumps(['music',cmd[1]]).encode())
                   except Exception as e:
-                      MainServer.logs('ERROR',e)
+                      MainServer.logs('ERROR [music]',e)
                       remove.append(i)
                       continue
             
@@ -551,7 +551,7 @@ try:
               chat = json.load(read_file)
               chat_main = chat['chat']
       except OSError as e:
-          MainServer.logs('ERROR',e)
+          MainServer.logs('ERROR [load chat]',e)
   ms = MainServer(serverAddr,port)
   MainServer.logs('INFO','Данные для подключений ' + str(serverAddr)+":"+str(port))
   asyncore.loop()
